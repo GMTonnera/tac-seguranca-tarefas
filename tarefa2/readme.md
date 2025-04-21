@@ -1,5 +1,7 @@
-# UNIVERSIDADE DE BRASÍLIA (UNB)  
-## DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO  
+# UNIVERSIDADE DE BRASÍLIA (UNB)
+
+## DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO
+
 **TÓPICOS ESPECIAIS EM COMPUTADORES**
 
 ---
@@ -20,7 +22,7 @@
 
 ## Resumo
 
-O presente relatório possui os resultados obtidos pelo estudantes Gustavo M Tonnera no desenvolvimento da Tarefa 2 da disciplina de Tópicos Especiais em Computadores ministrada pela professora Lorena de Souza Bezerra Borges. A tarefa consiste no desenvolvimento do algoritmo criptográfico S-AES, a fim de fixar os conceitos sobre criptografia apresentados durante as aulas. 
+O presente relatório possui os resultados obtidos pelo estudantes Gustavo M Tonnera no desenvolvimento da Tarefa 2 da disciplina de Tópicos Especiais em Computadores ministrada pela professora Lorena de Souza Bezerra Borges. A tarefa consiste no desenvolvimento do algoritmo criptográfico S-AES, a fim de fixar os conceitos sobre criptografia apresentados durante as aulas.
 
 **Palavras-chave:** tarefa; resultados; S-AES.
 
@@ -67,7 +69,7 @@ vector<Block> keyExpansion(Block key) {
         // RotWord
         vector<Nibble> g_b1 = {b1[1], b1[0]};
         // SubWord
-        g_b1 = {sbox[b1[0].get()], sbox[b1[1].get()]};    
+        g_b1 = {sbox[b1[0].get()], sbox[b1[1].get()]};
         // rcon
         g_b1 = {Nibble(b1[0].get() ^ rcon[0].get()), Nibble(b1[1].get() ^ 0x00)};
 
@@ -87,7 +89,7 @@ Block addRoundKey(Block key, Block plainText) {
         Nibble(key.get()[0][0].get() ^ plainText.get()[0][0].get()),
         Nibble(key.get()[0][1].get() ^ plainText.get()[0][1].get()),
         Nibble(key.get()[1][0].get() ^ plainText.get()[1][0].get()),
-        Nibble(key.get()[1][1].get() ^ plainText.get()[1][1].get())    
+        Nibble(key.get()[1][1].get() ^ plainText.get()[1][1].get())
     );
 }
 ```
@@ -152,7 +154,7 @@ Block encrypt(Block plainText, vector<Block> roundKeys) {
 
     // first round
     cout << "\n>>> Rodada 1:" << endl;
-    
+
     cipherText = subNibbles(cipherText);
     cout << "- Matrix 2x2 (SubNibbles):" << endl;
     cipherText.print();
@@ -164,7 +166,7 @@ Block encrypt(Block plainText, vector<Block> roundKeys) {
     cipherText = mixColumns(cipherText);
     cout << "- Matrix 2x2 (MixColumns):" << endl;
     cipherText.print();
-    
+
     cipherText = addRoundKey(roundKeys[1], cipherText);
     cout << "- Matrix 2x2 (AddRoundKey):" << endl;
     cipherText.print();
@@ -179,7 +181,7 @@ Block encrypt(Block plainText, vector<Block> roundKeys) {
     cipherText = shiftRows(cipherText);
     cout << "- Matrix 2x2 (ShiftRows):" << endl;
     cipherText.print();
-    
+
     cipherText = addRoundKey(roundKeys[2], cipherText);
     cout << "- Matrix 2x2 (AddRoundKey):" << endl;
     cipherText.print();
@@ -196,7 +198,7 @@ As seguintes Structs foram desenvolvidas para auxiliar no desenvolvimento do alg
 struct Nibble {
     private:
         uint8_t value;
-    
+
     public:
         Nibble(uint8_t n = 0);
         void set(uint8_t n);
@@ -206,7 +208,7 @@ struct Nibble {
 struct Block {
     private:
         vector<vector<Nibble>> value;
-    
+
     public:
         Block(Nibble n1, Nibble n2, Nibble n3, Nibble n4);
         Block(string s);
@@ -229,21 +231,11 @@ Em termos de aplicação e segurança, o S-AES foi projetado para fins educacion
 
 ---
 
-## 3. Metodologia
-
-Descreva como a atividade foi realizada: materiais, ferramentas, etapas, métodos e técnicas utilizados. Use linguagem clara e objetiva.
+## 3. Parte 2 – Implementação do Modo de Operação ECB com o S-AES
 
 ---
 
-## 4. Desenvolvimento / Resultados
-
-Apresente os resultados obtidos com base na metodologia. Inclua gráficos, tabelas e códigos, se necessário. Analise os dados com base na teoria apresentada anteriormente.
-
----
-
-## 5. Conclusão
-
-Retome os objetivos propostos e indique se foram alcançados. Discuta os principais aprendizados, dificuldades e sugestões de continuidade ou melhorias.
+## 4. Parte 3 – Simulação com AES Real usando Bibliotecas Criptográficas
 
 ---
 
@@ -251,11 +243,7 @@ Retome os objetivos propostos e indique se foram alcançados. Discuta os princip
 
 Liste todas as obras consultadas, em ordem alfabética, conforme a ABNT (NBR 6023:2018). Exemplos:
 
-- SILVA, João. *Introdução à Programação*. 2. ed. São Paulo: Editora Técnica, 2020.  
-- SOUZA, Maria. *Aprendizado de Máquina Aplicado*. Rio de Janeiro: Ciência Moderna, 2021.
+- SILVA, João. _Introdução à Programação_. 2. ed. São Paulo: Editora Técnica, 2020.
+- SOUZA, Maria. _Aprendizado de Máquina Aplicado_. Rio de Janeiro: Ciência Moderna, 2021.
 
 ---
-
-## Anexos (se houver)
-
-Inclua materiais complementares como questionários, diagramas, códigos completos, etc.
