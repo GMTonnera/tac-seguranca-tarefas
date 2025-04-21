@@ -1,32 +1,17 @@
-# UNIVERSIDADE DE BRASÍLIA (UNB)
-
-## DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO
-
-**TÓPICOS ESPECIAIS EM COMPUTADORES**
+# Tarefa 2 - TÓPICOS ESPECIAIS EM COMPUTADORES
 
 ---
 
-**TAREFA 2**
-
----
-
-**GUSTAVO MELLO TONNERA**  
-211055272
-
----
-
-**Brasília - DF**  
-**2025**
-
----
+**Nome:** Gustavo Mello Tonnera  
+**Matrícula:** 211055272
+**Período:** 2025.1
+**Universidade de Braília (UnB)**
 
 ## Resumo
 
 O presente relatório possui os resultados obtidos pelo estudantes Gustavo M Tonnera no desenvolvimento da Tarefa 2 da disciplina de Tópicos Especiais em Computadores ministrada pela professora Lorena de Souza Bezerra Borges. A tarefa consiste no desenvolvimento do algoritmo criptográfico S-AES, a fim de fixar os conceitos sobre criptografia apresentados durante as aulas.
 
 **Palavras-chave:** tarefa; resultados; S-AES.
-
----
 
 ## 1. Introdução
 
