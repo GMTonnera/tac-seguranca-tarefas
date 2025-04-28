@@ -207,7 +207,7 @@ struct Block {
 
 ```
 
-Elas foram úteis para lidar com dados com apenas 4 bits, tipo de dados que o C++ não possui. A Struct Nibble simula a implementação de um número de 4 bits e a Struct Block simula a implementação de uma matrix 2x2 de nibbles.
+Elas foram úteis para lidar com dados com apenas 4 bits, tipo de dados que o C++ não possui. A Struct Nibble simula a implementação de um número de 4 bits e a Struct Block simula a implementação de uma matrix 2x2 de nibbles. Além disso, para rodar o algoritmo, basta compilar o arquivo "encrypt.cpp" e executá-lo.
 
 ### 2.1 Diferença entre AES e S-AES
 
@@ -221,15 +221,36 @@ Em termos de aplicação e segurança, o S-AES foi projetado para fins educacion
 
 ---
 
-## 4. Parte 3 – Simulação com AES Real usando Bibliotecas Criptográficas
+Na segunda etapa da atividadde, foi necessário implementar o Modo de Operação ECB para o algoritmo desenvolvido anteriormente. O modo de operação ECB (Electronic Codebook) é o mais simples entre os modos usados em algoritmos de criptografia de bloco, como AES e DES. Nesse modo, o texto simples é dividido em blocos de tamanho fixo, e cada bloco é criptografado de forma independente usando a mesma chave secreta. Embora o ECB permita a criptografia paralela dos blocos e seja fácil de implementar, ele possui uma grande vulnerabilidade: blocos idênticos de texto simples geram blocos idênticos de texto cifrado, o que pode expor padrões do dado original e comprometer a segurança. Por essa razão, o modo ECB é considerado inadequado para proteger informações sensíveis e raramente é recomendado em aplicações modernas.
 
----
+```ccp
+for(int i = 0; i < plainText.size(); i+=2) {
+    cout << "##############################" << endl;
+    cout << "\t Bloco " << i/2 << endl;
+    cout << "##############################" << endl;
 
-## Referências
+    cout << ">>> Texto: " <<plainText.substr(i, 2) << endl;
 
-Liste todas as obras consultadas, em ordem alfabética, conforme a ABNT (NBR 6023:2018). Exemplos:
+    // padding caso necessário
+    textBlock = plainText.substr(i, 2);
+    if (textBlock.size() < 2) {
+        textBlock += " ";
+    }
 
-- SILVA, João. _Introdução à Programação_. 2. ed. São Paulo: Editora Técnica, 2020.
-- SOUZA, Maria. _Aprendizado de Máquina Aplicado_. Rio de Janeiro: Ciência Moderna, 2021.
+    // formatando a string no formato de bloco 2x2 Nibble
+    plainTextBlock = Block(textBlock);
+    cout << ">>> Matrix 2x2 inicial:" << endl;
+    plainTextBlock.print();
 
----
+    // cifrando o bloco
+    encryptedBlock = encrypt(plainTextBlock, roundKeys);
+    // colocando no buffer
+
+    cout << ">>> Matrix 2x2 criptograda: " << endl;
+    encryptedBlock.print();
+    encryptedText += encryptedBlock.toString();
+    cout << endl;
+}
+```
+
+O loop acima foi usado para implentar o modo ECB. A cada iteração do loop, um novo bloco de 16 bits é gerado a partir da mensagem e criptografado usando o S-AES. Como cada bloco criptografado é tratado independentemente e sempre a mesma chave é usada para criptografar os blocos, blocos iguais geram a mesma mensagem criptografada.
