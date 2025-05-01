@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include <fstream>
 #include <iostream>
 
 #include "functions.h"
@@ -9,7 +8,7 @@
 using namespace std;
 
 
-Block encrypt(Block plainText, vector<Block> roundKeys) {
+Block SAESEncrypt(Block plainText, vector<Block> roundKeys) {
     // add round key
     Block cipherText = addRoundKey(roundKeys[0], plainText);
     cout << "- Matrix 2x2 (AddRoundKey):" << endl;
@@ -52,27 +51,17 @@ Block encrypt(Block plainText, vector<Block> roundKeys) {
     return cipherText;
 }
 
-int main() {
-    string key;
-    string plainText;
-    
-    // adquirir a mensagem
-    cout << "Digite a mensagem: "; 
-    cin >> plainText;
-    // adquirir a chave
-    cout << "Digite a chave: "; 
-    cin >> key;
-    
+void encrypt_saes_ecb(string plainText, string key) {
     // expansao de chave
     vector<Block> roundKeys = keyExpansion(
-                                Block(
-                                    Nibble(hexChar2Numero(key[0])), 
-                                    Nibble(hexChar2Numero(key[1])),
-                                    Nibble(hexChar2Numero(key[2])),
-                                    Nibble(hexChar2Numero(key[3]))
-                                )
-                            );
-    
+        Block(
+            Nibble(hexChar2Numero(key[0])), 
+            Nibble(hexChar2Numero(key[1])),
+            Nibble(hexChar2Numero(key[2])),
+            Nibble(hexChar2Numero(key[3]))
+        )
+    );
+
     Block plainTextBlock, encryptedBlock;
     string textBlock;
     string encryptedText = "";
@@ -81,9 +70,9 @@ int main() {
         cout << "##############################" << endl;
         cout << "\t Bloco " << i/2 << endl;
         cout << "##############################" << endl;
-        
+
         cout << ">>> Texto: " <<plainText.substr(i, 2) << endl;
-        
+
         // padding caso necessário
         textBlock = plainText.substr(i, 2);
         if (textBlock.size() < 2) {
@@ -96,9 +85,9 @@ int main() {
         plainTextBlock.print();
 
         // cifrando o bloco
-        encryptedBlock = encrypt(plainTextBlock, roundKeys);
+        encryptedBlock = SAESEncrypt(plainTextBlock, roundKeys);
+
         // colocando no buffer
-        
         cout << ">>> Matrix 2x2 criptograda: " << endl;
         encryptedBlock.print();
         encryptedText += encryptedBlock.toString();
@@ -106,6 +95,22 @@ int main() {
     }
 
     cout << "Mensagem criptografada (base64): " << stringToBase64(encryptedText) << endl;
+}
+
+
+int main() {
+    string key;
+    string plainText;
+    
+    // adquirir a mensagem
+    cout << "Digite a mensagem: "; 
+    cin >> plainText;
+    // adquirir a chave
+    cout << "Digite a chave: "; 
+    cin >> key;
+    
+    // encrypt
+    encrypt_saes_ecb(plainText, key);
 
     return 0;
 }

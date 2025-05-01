@@ -22,7 +22,7 @@ Com o objetivo de fixar os conceitos vistos em sala de aula, a Tarefa 2 foi prop
 
 A segunda parte da tarefa caracteriza-se pelo desenvolvimento do modo de operação ECB para o algoritmo desenvolvido anteriormente. O modo de operação ECB (Electronic Codebook) é uma das formas mais simples de aplicar o algoritmo AES na criptografia de blocos de dados. Nesse modo, cada bloco de texto puro é criptografado de forma independente, utilizando a mesma chave para todos os blocos. Embora seja fácil de implementar, o ECB apresenta sérias vulnerabilidades de segurança, pois blocos idênticos de entrada geram blocos idênticos de saída, permitindo padrões visuais que podem ser explorados por atacantes.
 
-Por fim, a última etapa envolve a implementação do algoritmo AES com o auxílio de uma biblioteca e na comparação dos seguintes modos de operação: ECB, CBC, CFB, OFB e CTR. Os resultados obtidos estão expostos na próximas seções do relatório.
+Por fim, a última etapa envolve a implementação do algoritmo AES com o auxílio de uma biblioteca e na comparação dos seguintes modos de operação: ECB, CBC, CFB, OFB e CTR. As primeiras duas partes do trabalho foram implementadas na linguagem de programação C++ e a terceira na linguagem Python, devido a facilidade de administrar bibliotecas em Python. Os resultados obtidos estão expostos na próximas seções do relatório.
 
 ---
 
@@ -80,7 +80,7 @@ Block addRoundKey(Block key, Block plainText) {
 }
 ```
 
-Durante as rodadas, operações de rotação e substituição são realizadas. Na primeira rodada, a primeira operação feita é uma operação de substituição (SubNibbles), a qual consiste na substituição dos Nibbles do bloco. Em seguida, é realizada uma operação de permutação entre os 2 últimos Nibbles do bloco. Em sequência, é realizada uma operação de mistura de colunas (MixColumns), na qual cada coluna da matriz 2x2 é transformada através de uma multiplicação em um campo finito (GF(2⁴)), utilizando uma matriz fixa. Essa operação mistura os dados de forma a aumentar ainda mais a difusão, espalhando os bits dos nibbles por toda a estrutura. Foi utilzada uma tabela de multiplicação para calcular as mutiplicações de maneira mais eficiente. Por fim, uma nova operação de adição de chave é feita, porém a segunda chave de rodada.
+Durante as rodadas, operações de rotação e substituição são realizadas. Na primeira rodada, a primeira operação feita é uma operação de substituição (SubNibbles), a qual consiste na substituição dos Nibbles do bloco. Em seguida, é realizada uma operação de permutação entre os 2 últimos Nibbles do bloco. Em sequência, é realizada uma operação de mistura de colunas (MixColumns), na qual cada coluna da matriz 2x2 é transformada através de uma multiplicação em um campo finito (GF(2⁴)), utilizando uma matriz fixa. Essa operação mistura os dados de forma a aumentar ainda mais a difusão, espalhando os bits dos nibbles por toda a estrutura. Foi utilzada uma tabela de multiplicação para calcular as mutiplicações de maneira mais eficiente.Essa operaçãoç foi implementada por meio de uma tabela de multiplicação com os valores pré-calculados. Por fim, uma nova operação de adição de chave é feita, porém a segunda chave de rodada.
 
 ```cpp
 
@@ -132,7 +132,7 @@ Block mixColumns(Block plainText) {
 Utilizando as funções expostas, desenvolveu-se a seguinte função:
 
 ```cpp
-Block encrypt(Block plainText, vector<Block> roundKeys) {
+Block SAESEncrypt(Block plainText, vector<Block> roundKeys) {
     // add round key
     Block cipherText = addRoundKey(roundKeys[0], plainText);
     cout << "- Matrix 2x2 (AddRoundKey):" << endl;
@@ -177,10 +177,9 @@ Block encrypt(Block plainText, vector<Block> roundKeys) {
 
 ```
 
-As seguintes Structs foram desenvolvidas para auxiliar no desenvolvimento do algoritmo:
+Duas Structs foram desenvolvidas para auxiliar no desenvolvimento do algoritmo: Nibble e Block. Elas foram úteis para lidar com dados com apenas 4 bits, tipo de dados que o C++ não possui. A Struct Nibble simula a implementação de um número de 4 bits e a Struct Block simula a implementação de uma matrix 2x2 de nibbles.
 
 ```cpp
-
 struct Nibble {
     private:
         uint8_t value;
@@ -204,10 +203,14 @@ struct Block {
         void print();
         string toString();
 };
-
 ```
 
-Elas foram úteis para lidar com dados com apenas 4 bits, tipo de dados que o C++ não possui. A Struct Nibble simula a implementação de um número de 4 bits e a Struct Block simula a implementação de uma matrix 2x2 de nibbles. Além disso, para rodar o algoritmo, basta compilar o arquivo "encrypt.cpp" e executá-lo.
+Para rodar o algoritmo, basta compilar o programa "SAESEncrypt.cpp" e executar o exutável gerado. O programa solicitará que o usuário digite um texto de 16 bits (2 caracteres ASCII) e uma chave a ser usada na criptografia do texto. O texto é convertido para o formato de bloco de Nibbles (Matrix 2x2 de Nibbles) e criptografado usando o S-AES implementado. A cada passo do algoritmo, o estado da matrix é printado no terminal e, no final, o texto inseirido inicialmente é exibido no formato base64 no terminal.
+
+```
+g++ SAESEncrypt.cpp function.cpp -o main
+./main
+```
 
 ### 2.1 Diferença entre AES e S-AES
 
@@ -224,33 +227,53 @@ Em termos de aplicação e segurança, o S-AES foi projetado para fins educacion
 Na segunda etapa da atividadde, foi necessário implementar o Modo de Operação ECB para o algoritmo desenvolvido anteriormente. O modo de operação ECB (Electronic Codebook) é o mais simples entre os modos usados em algoritmos de criptografia de bloco, como AES e DES. Nesse modo, o texto simples é dividido em blocos de tamanho fixo, e cada bloco é criptografado de forma independente usando a mesma chave secreta. Embora o ECB permita a criptografia paralela dos blocos e seja fácil de implementar, ele possui uma grande vulnerabilidade: blocos idênticos de texto simples geram blocos idênticos de texto cifrado, o que pode expor padrões do dado original e comprometer a segurança. Por essa razão, o modo ECB é considerado inadequado para proteger informações sensíveis e raramente é recomendado em aplicações modernas.
 
 ```ccp
-for(int i = 0; i < plainText.size(); i+=2) {
-    cout << "##############################" << endl;
-    cout << "\t Bloco " << i/2 << endl;
-    cout << "##############################" << endl;
+void encrypt_saes_ecb(string plaintext, string key) {
+    // expansao de chave
+    vector<Block> roundKeys = keyExpansion(
+        Block(
+            Nibble(hexChar2Numero(key[0])),
+            Nibble(hexChar2Numero(key[1])),
+            Nibble(hexChar2Numero(key[2])),
+            Nibble(hexChar2Numero(key[3]))
+        )
+    );
 
-    cout << ">>> Texto: " <<plainText.substr(i, 2) << endl;
+    Block plainTextBlock, encryptedBlock;
+    string textBlock;
+    string encryptedText = "";
 
-    // padding caso necessário
-    textBlock = plainText.substr(i, 2);
-    if (textBlock.size() < 2) {
-        textBlock += " ";
+    for(int i = 0; i < plainText.size(); i+=2) {
+        cout << "##############################" << endl;
+        cout << "\t Bloco " << i/2 << endl;
+        cout << "##############################" << endl;
+
+        cout << ">>> Texto: " <<plainText.substr(i, 2) << endl;
+
+        // padding caso necessário
+        textBlock = plainText.substr(i, 2);
+        if (textBlock.size() < 2) {
+            textBlock += " ";
+        }
+
+        // formatando a string no formato de bloco 2x2 Nibble
+        plainTextBlock = Block(textBlock);
+        cout << ">>> Matrix 2x2 inicial:" << endl;
+        plainTextBlock.print();
+
+        // cifrando o bloco
+        encryptedBlock = SAESEncrypt(plainTextBlock, roundKeys);
+
+        // colocando no buffer
+        cout << ">>> Matrix 2x2 criptograda: " << endl;
+        encryptedBlock.print();
+        encryptedText += encryptedBlock.toString();
+        cout << endl;
     }
 
-    // formatando a string no formato de bloco 2x2 Nibble
-    plainTextBlock = Block(textBlock);
-    cout << ">>> Matrix 2x2 inicial:" << endl;
-    plainTextBlock.print();
-
-    // cifrando o bloco
-    encryptedBlock = encrypt(plainTextBlock, roundKeys);
-    // colocando no buffer
-
-    cout << ">>> Matrix 2x2 criptograda: " << endl;
-    encryptedBlock.print();
-    encryptedText += encryptedBlock.toString();
-    cout << endl;
+    cout << "Mensagem criptografada (base64): " << stringToBase64(encryptedText) << endl;
 }
 ```
 
-O loop acima foi usado para implentar o modo ECB. A cada iteração do loop, um novo bloco de 16 bits é gerado a partir da mensagem e criptografado usando o S-AES. Como cada bloco criptografado é tratado independentemente e sempre a mesma chave é usada para criptografar os blocos, blocos iguais geram a mesma mensagem criptografada.
+O função encrypt_saes_ecb foi usado para implentar o modo ECB. A cada iteração do loop, um novo bloco de 16 bits é gerado a partir da mensagem e criptografado usando o S-AES. Quando o bloco não caracteres suficientes, o caractere " " é adicionado ao final do bloco. Para executar o programa com essa função, basta compilar e executar o arquivo "SAESEncryptECB.cpp". Ao ser executado, o programa pedirá ao usuário um texto a ser criptografado e a chave a ser usada pelo algoritmo criptográfico. Em seguida, o programa criptografa a mensagem digitada utilizando o algoritmo S-AES implementado na etapa 1 com o modo ECB implementado nessa etapa. Ao final, a mensagem criptografada é exposta no formato base64.
+
+Como cada bloco criptografado é tratado independentemente e sempre a mesma chave é usada para criptografar os blocos, blocos iguais geram a mesma mensagem criptografada. Para exemplificar esse comportamento, o programa foi executado com a mensagem "banana" e chave "0x1234", o resultado esperado é que o resultado bloco "ba" seja diferente dos demais blocos, mas o dois blocos "na" sejam criptografadas da mesma forma. Como esperado e observado nas saídas dos programas, os resultados de todas as operações são idênticos com as entradas "banana" e "1234". Isso evidencia uma forte vunerabilidade nesse modo de operação.
