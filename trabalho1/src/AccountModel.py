@@ -42,7 +42,6 @@ class AccountModel:
     def createAccount(self, account):
         with sqlite3.connect("trabalho1/src/database/trab1db.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO Account (fk_user_id, cd_account, vr_account_balance, vr_account_limit, vr_account_limit_used) VALUES (?, ?, ?, ?, ?)", (user.name, user.password))
+            cursor.execute("INSERT INTO Account (fk_user_id, cd_account, vr_account_balance, vr_account_limit, vr_account_limit_used) VALUES (?, ?, ?, ?, ?)", (account.fk_user_id, account.cd_account, account.vr_account_balance, account.vr_account_limit, account.vr_account_limit_used))
             conn.commit()
             return Account(cursor.lastrowid, account.fk_user_id, account.cd_account, account.vr_account_balance, account.vr_account_limit, account.vr_account_limit_used)
-    
