@@ -7,35 +7,49 @@ import time
 import re
 from dataclasses import asdict
 
-from UserModel import UserModel
-from AccountModel import AccountModel
-from User import User
+from trabalho1.src.models.UserModel import UserModel
+from trabalho1.src.models.AccountModel import AccountModel
+from trabalho1.src.dataclasses.User import User
 
-class RestAPIHandler(BaseHTTPRequestHandler):
-    userModel = UserModel()
-    accountModel = AccountModel()
-    expTokenTime = 600
-    secretKey = ""
+class RestAPIHandlerSHA(BaseHTTPRequestHandler):
+    def __init__(self, request, client_address, server):
+        super().__init__(request, client_address, server)
+        # inicializando interfaces de comunicação com o banco de dados
+        self.userModel = UserModel()
+        self.accountModel = AccountModel()
+        
+        # tempo de expiracao do token
+        self.expTokenTime = 600
+        
+        # inicializacao das secret
+        self.secret = "ec84e00a057d658c81fa531b727fe14fd1642106018777b86908fa39e34b9639"
     
-    # perguntar ao gpto o que isso faz com detalhes 
     def do_GET(self):
-        #
+        # aplicar regex na URL (/contacartao/{id da conta}/{metodo})
         match = re.match(r"^/contacartao/(\d+)/([a-zA-Z_]+)$", self.path)
         if match:
+            # pegando o id da conta
             account_id = match.group(1)
+            # pegando o metodo
             method = match.group(2)
+            # pegando o token
             token = self.headers.get('Authorization')[7:]
             
+            # validar o token
             try:
-                decoded = jwt.decode(token, self.secretKey, algorithms=["HS256"])
+                # decodificando o token via RSA
+                decoded = jwt.decode(token, self.secret, algorithms=["HS256"])
                 print("✅ Valid token:", decoded)
-                
+            
+            # token expirado 
             except jwt.ExpiredSignatureError:
                 print("❌ Token expired")
                 self.send_response(401)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps({"Message": "Erro de autenticação!", "Error": "Token expirado."}).encode())
+            
+            # token invalido
             except jwt.InvalidTokenError:
                 print("❌ Invalid token")
                 self.send_response(401)
@@ -43,38 +57,45 @@ class RestAPIHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"Message": "Erro de autenticação!", "Error": "Token inválido."}).encode())
             
+            
+            # verificar o metodo relacionado com a contal cartao
             if method == 'info':
+                # verificar se o id da conta especificado é um valor numerico
                 if not account_id.isdigit():
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": "ID mal informado!"}).encode())    
+                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.","Error": "ID mal informado!"}).encode())    
                 
+                # verificar se existe uma conta com o id especificado
                 info = self.accountModel.getInfo(int(account_id))
                 if not info:
+                    # se nao foi encontrada
                     self.send_response(404)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": "Conta não encontrada!"}).encode())    
+                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.", "Error": "Conta não encontrada!"}).encode())    
                 
+                # se foi encontrado, enviar informacoes da conta
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps({"Info": asdict(info),"Message": "Token valido!", "Error": None}).encode())
 
+            # se o metodo foi mal especificado
             else:
                 self.send_response(404)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Not found"}).encode())
+                self.wfile.write(json.dumps({"Message": "Erro na URL.", "Error": "Not found"}).encode())
+        
+        # se a url nao segue o padrao
         else:
-                self.send_response(404)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": "Not found"}).encode())
-    
-    
-    # perguntar ao gpto o que isso faz com detalhes
+            self.send_response(404)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"Message": "Erro na URL.", "Error": "Not found"}).encode())
+
     def do_POST(self):       
         if self.path == "/auth":
             print("Autenticação em execução...")
@@ -102,9 +123,12 @@ class RestAPIHandler(BaseHTTPRequestHandler):
                     "exp": int(time.time() + 600)
                 }
                 
-                # gerando token JWT
-                token = jwt.encode(payload, self.secretKey, algorithm="HS256")
-                          
+                # gerando token JWT e assinando por SHA256
+                token = jwt.encode(payload, self.secret, algorithm="HS256")
+                
+                # gerando token JWT e assinando por RSA
+                # token = jwt.encode(payload, self.privateKey, algorithm="RS256")          
+
                 # enviando o token no cabecalho
                 self.send_response(200)
                 self.send_header("Authorization", f"Bearer {token}")
@@ -120,16 +144,18 @@ class RestAPIHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps({"Message": "Autenticação não realizada!", "Error": "Usuário ou senha inválidos"}).encode())
-                
-                
-                
-                
-                
+                 
         else:
             self.send_response(404)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps({"Error": "Not found"}).encode())
+            self.wfile.write(json.dumps({"Message": "Erro na URL.", "Error": "Not found"}).encode())
                 
-            
+    def initKeys(self):
+        with open("src/keys/private.pem", "rb") as f:
+            self.privateKey = f.read()
+
+        with open("src/keys/public.pem", "rb") as f:
+            self.public_key = f.read()
+
             

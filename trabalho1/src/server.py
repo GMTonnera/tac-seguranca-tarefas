@@ -1,19 +1,23 @@
+import sys
 from http.server import HTTPServer
 
-from RestAPIHandler import RestAPIHandler
-from UserModel import UserModel
-from AccountModel import AccountModel
+from trabalho1.src.RestAPIHandlerSHA import RestAPIHandlerSHA
+from trabalho1.src.RestAPIHandlerRSA import RestAPIHandlerRSA
 
-def main():
-    UserModel().initModel()
-    AccountModel().initModel()
-    print("Banco de dados inicializado!")
-    
+def main(algorithm):
     server_address = ('', 8000)
-    httpd = HTTPServer(server_address, RestAPIHandler)
+    if algorithm == 'RSA':
+        httpd = HTTPServer(server_address, RestAPIHandlerRSA)
+    elif algorithm == 'SHA':
+        httpd = HTTPServer(server_address, RestAPIHandlerSHA)
+    else:
+        print("Aalgoritmo especificado não é uma opção válida!\nOpções: RSA ou SHA.")
+    
     print(f"Starting server at http://localhost:{8000}")
     httpd.serve_forever()
-
     
 if __name__ == "__main__":
-    main()
+    if len(sys.args[1]) == 2:
+        main(sys.args[1])
+    else:
+        print("Especifique o algoritmo de assinatura do Token!\nOpções: RSA ou SHA.")

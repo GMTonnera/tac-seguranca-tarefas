@@ -1,25 +1,50 @@
 import sqlite3
+import random
 
-from seeds import accountSeed
-from Info import Info
-from Account import Account
+from trabalho1.src.dataclasses.Info import Info
+from trabalho1.src.dataclasses.Account import Account
 
 class AccountModel:
-    def initModel(self):
-        with sqlite3.connect("trabalho1/src/database/trab1db.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS Account (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    fk_user_id INTEGER NOT NULL UNIQUE,
-                    cd_account TEXT NOT NULL UNIQUE,
-                    vr_account_balance INTEGER NOT NULL,
-                    vr_account_limit INTEGER NOT NULL,
-                    vr_account_limit_used INTEGER NOT NULL
-                )
-            """)
-            conn.commit()
-        accountSeed()
+    def __init__(self):
+        accounts = [
+            (1, '73492018')  
+            , (2, '28510476')  
+            , (3, '91034752')  
+            , (4, '12869345')  
+            , (5, '67021984')  
+            , (6, '49372056')  
+            , (7, '80213497')  
+            , (8, '35980261')  
+            , (9, '74629583')  
+            , (10, '21840769')
+        ]
+        
+        try:
+            with sqlite3.connect("trabalho1/src/database/trab1db.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS Account (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        fk_user_id INTEGER NOT NULL UNIQUE,
+                        cd_account TEXT NOT NULL UNIQUE,
+                        vr_account_balance INTEGER NOT NULL,
+                        vr_account_limit INTEGER NOT NULL,
+                        vr_account_limit_used INTEGER NOT NULL
+                    )
+                """)
+                
+                for account in accounts:
+                    balance = random.randint(0, 10000)
+                    limit = random.randint(5000, 10000)//100 * 100
+                    used_limit = random.randint(0, limit)
+                    
+                cursor.execute("INSERT INTO Account (fk_user_id, cd_account, vr_account_balance, vr_account_limit, vr_account_limit_used) VALUES (?, ?, ?, ?, ?)", (account[0], account[1], balance, limit, used_limit))    
+                conn.commit()
+                print("Tabela de contas inicializada!")
+        
+        except sqlite3.IntegrityError:
+            print("Tabela de contas já existe!")
+
             
     def getAccountById(self, id):
         with sqlite3.connect("trabalho1/src/database/trab1db.db") as conn:
