@@ -1,7 +1,6 @@
 import sqlite3
 
-from trabalho1.src.dataclass.User import User
-from seeds import userSeed
+from trabalho1.src.dataclasses.User import User
 
 class UserModel:
     def __init_(self):
