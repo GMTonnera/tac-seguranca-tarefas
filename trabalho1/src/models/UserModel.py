@@ -1,21 +1,22 @@
 import sqlite3
+import bcrypt
 
 from trabalho1.src.dataclasses.User import User
 
 class UserModel:
-    def __init_(self):
+    def __init__(self):
         users = [
-        (1, "alice.brown", "G8xT1eRz")  
-        , (2, "bob.taylor", "kW93jdQp")  
-        , (3, "carol.johnson", "Vn71CkL2")  
-        , (4, "dave.martin", "r5QW8zEm")  
-        , (5, "eve.anderson", "UJ3n2c9B")  
-        , (6, "frank.white", "mX5Tz1Ap")  
-        , (7, "grace.jackson", "Qz78VwH3")  
-        , (8, "heidi.smith", "A6kLp9Jr")  
-        , (9, "ivan.harris", "yN4E3gWt")  
-        , (10, "judy.thomas", "Dq2RMfX7")
-    ]
+            (1, "alice.brown", "G8xT1eRz")  
+            , (2, "bob.taylor", "kW93jdQp")  
+            , (3, "carol.johnson", "Vn71CkL2")  
+            , (4, "dave.martin", "r5QW8zEm")  
+            , (5, "eve.anderson", "UJ3n2c9B")  
+            , (6, "frank.white", "mX5Tz1Ap")  
+            , (7, "grace.jackson", "Qz78VwH3")  
+            , (8, "heidi.smith", "A6kLp9Jr")  
+            , (9, "ivan.harris", "yN4E3gWt")  
+            , (10, "judy.thomas", "Dq2RMfX7")
+        ]
         try:
             with sqlite3.connect("trabalho1/src/database/trab1db.db") as conn:
                 cursor = conn.cursor()
