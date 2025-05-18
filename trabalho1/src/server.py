@@ -1,4 +1,5 @@
 import sys
+import ssl
 from http.server import HTTPServer
 
 from trabalho1.src.RestAPIHandlerSHA import RestAPIHandlerSHA
@@ -11,7 +12,15 @@ def main(algorithm):
     elif algorithm == 'SHA':
         httpd = HTTPServer(server_address, RestAPIHandlerSHA)
     else:
-        print("Aalgoritmo especificado não é uma opção válida!\nOpções: RSA ou SHA.")
+        print("Algoritmo especificado não é uma opção válida!\nOpções: RSA ou SHA.")
+    
+    httpd.socket = ssl.wrap_socket(
+        httpd.socket,
+        server_side=True,
+        certifile='trabalho1/src/keys/cert.pem',
+        keyfile='trabalho1/src/keys/key.pem',
+        ssl_version=ssl.PROTOCOL_TLS
+    )
     
     print(f"Starting server at http://localhost:{8000}")
     httpd.serve_forever()
