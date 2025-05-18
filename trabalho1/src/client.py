@@ -1,6 +1,6 @@
 import requests
 
-from trabalho1.src.dataclasses.User import User
+from models.User import User
 
 def main():
     token = None
@@ -25,25 +25,29 @@ def main():
             print(">>> Digite as cerdenciais:")
             name = input("      Nome: ")
             password = input("      Senha: ")
-            response = requests.post('http://localhost:8000/auth', data={'name': name,'password': password})
+            
+            response = requests.post('https://localhost:8000/auth', data={'name': name,'password': password}, verify='trabalho1/src/keys/cert.pem')
+            
             if response.status_code == 200:
                 token = response.headers.get('Authorization')[7:]
                 user = response.json()['User']
+                print("Autenticação realizada com sucesso!")
+            else:
+                print(">>>", response.json()['Message'], response.json()['Error'])
             
-            print(response.json()['Message'])
-            print(response.json()['Error'])
-        
         elif code == '2':
-            print(user)
+            if not token:
+                print(">>> É necessário se autenticar para acessar as informações da conta!")
             headers = {
                 "Authorization": f"Bearer {token}"
             }
-            response = requests.get(f'http://localhost:8000/contacartao/{user['fk_account_id']}/info', headers=headers)
+            response = requests.get(f'https://localhost:8000/contacartao/{user['fk_account_id']}/info', headers=headers, verify='trabalho1/src/keys/cert.pem')
             if response.status_code == 200:
-                print(">>> " + response.json()['Info'])
-            
-            print(">>> " + response.json()['Message'] + response.json()['Error'])
-        
+                print(">>> Informações da Conta:")
+                for k, v in response.json()['Info'].items():
+                    print(f"\t- {k}: {v}") 
+            else:
+                print(">>>", response.json()['Message'], response.json()['Error'])
 
         elif code == '3':
             break

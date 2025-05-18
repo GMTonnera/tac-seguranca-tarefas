@@ -2,8 +2,8 @@ import sys
 import ssl
 from http.server import HTTPServer
 
-from trabalho1.src.RestAPIHandlerSHA import RestAPIHandlerSHA
-from trabalho1.src.RestAPIHandlerRSA import RestAPIHandlerRSA
+from RestAPIHandlerSHA import RestAPIHandlerSHA
+from RestAPIHandlerRSA import RestAPIHandlerRSA
 
 def main(algorithm):
     server_address = ('', 8000)
@@ -14,19 +14,16 @@ def main(algorithm):
     else:
         print("Algoritmo especificado não é uma opção válida!\nOpções: RSA ou SHA.")
     
-    httpd.socket = ssl.wrap_socket(
-        httpd.socket,
-        server_side=True,
-        certifile='trabalho1/src/keys/cert.pem',
-        keyfile='trabalho1/src/keys/key.pem',
-        ssl_version=ssl.PROTOCOL_TLS
-    )
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(certfile='trabalho1/src/keys/cert.pem', keyfile='trabalho1/src/keys/key.pem')
+    httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
+    
     
     print(f"Starting server at http://localhost:{8000}")
     httpd.serve_forever()
     
 if __name__ == "__main__":
-    if len(sys.args[1]) == 2:
-        main(sys.args[1])
+    if len(sys.argv) == 2:
+        main(sys.argv[1])
     else:
         print("Especifique o algoritmo de assinatura do Token!\nOpções: RSA ou SHA.")

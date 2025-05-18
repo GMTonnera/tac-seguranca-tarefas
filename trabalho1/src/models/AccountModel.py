@@ -1,8 +1,8 @@
 import sqlite3
 import random
 
-from trabalho1.src.dataclasses.Info import Info
-from trabalho1.src.dataclasses.Account import Account
+from models.Info import Info
+from models.Account import Account
 
 class AccountModel:
     def __init__(self):

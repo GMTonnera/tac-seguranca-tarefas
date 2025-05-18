@@ -7,9 +7,9 @@ import time
 import re
 from dataclasses import asdict
 
-from trabalho1.src.models.UserModel import UserModel
-from trabalho1.src.models.AccountModel import AccountModel
-from trabalho1.src.dataclasses.User import User
+from models.UserModel import UserModel
+from models.AccountModel import AccountModel
+from models.User import User
 
 class RestAPIHandlerRSA(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server):
@@ -82,7 +82,7 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(json.dumps({"Info": asdict(info),"Message": "Token valido!", "Error": None}).encode())
+                self.wfile.write(json.dumps({"Info": asdict(info),"Message": "Token valido!", "Error": "None"}).encode())
 
             # se o metodo foi mal especificado
             else:
@@ -104,10 +104,6 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
         if self.path == "/auth":
             print("Autenticação em execução...")
             body = self.rfile.read(int(self.headers["Content-Length"])).decode()
-            
-            print("🔸 POST Path:", self.path)
-            print("🔸 Headers:\n", self.headers)
-            print("🔸 Body:", body)
             
             params = parse_qs(body)
             # nome do usuario
@@ -137,7 +133,13 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Authorization", f"Bearer {token}")
                 self.end_headers()
-                self.wfile.write(json.dumps({"User": asdict(User(user.id, user.fk_account_id, user.name, None)),"Message": "Autenticação efetuada com sucesso!", "Error": None}).encode())
+                self.wfile.write(json.dumps(
+                    {
+                        "User": asdict(User(user.id, user.fk_account_id, user.name, None)),
+                        "Message": "Autenticação efetuada com sucesso!",
+                        "Error": None
+                    }
+                ).encode())
                 
             
             # se o usuario nao foi encontrado ou a senha estiver errada
@@ -147,7 +149,12 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                 self.send_response(401)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(json.dumps({"Message": "Autenticação não realizada!", "Error": "Usuário ou senha inválidos"}).encode())
+                self.wfile.write(json.dumps(
+                    {
+                        "Message": "Autenticação não realizada!",
+                        "Error": "Usuário ou senha inválidos"
+                    }
+                ).encode())
         
         # se nao segue o padrao, retornar 404        
         else:

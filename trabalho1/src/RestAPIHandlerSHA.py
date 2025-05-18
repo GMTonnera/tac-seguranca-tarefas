@@ -7,23 +7,21 @@ import time
 import re
 from dataclasses import asdict
 
-from trabalho1.src.models.UserModel import UserModel
-from trabalho1.src.models.AccountModel import AccountModel
-from trabalho1.src.dataclasses.User import User
+from models.UserModel import UserModel
+from models.AccountModel import AccountModel
+from models.User import User
 
 class RestAPIHandlerSHA(BaseHTTPRequestHandler):
-    def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server)
-        # inicializando interfaces de comunicação com o banco de dados
-        self.userModel = UserModel()
-        self.accountModel = AccountModel()
-        
-        # tempo de expiracao do token
-        self.expTokenTime = 600
-        
-        # inicializacao das secret
-        self.secret = "ec84e00a057d658c81fa531b727fe14fd1642106018777b86908fa39e34b9639"
+    # inicializando interfaces de comunicação com o banco de dados
+    userModel = UserModel()
+    accountModel = AccountModel()
     
+    # tempo de expiracao do token
+    expTokenTime = 600
+    
+    # inicializacao das secret
+    secret = "ec84e00a057d658c81fa531b727fe14fd1642106018777b86908fa39e34b9639"
+
     def do_GET(self):
         # aplicar regex na URL (/contacartao/{id da conta}/{metodo})
         match = re.match(r"^/contacartao/(\d+)/([a-zA-Z_]+)$", self.path)
@@ -80,7 +78,7 @@ class RestAPIHandlerSHA(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(json.dumps({"Info": asdict(info),"Message": "Token valido!", "Error": None}).encode())
+                self.wfile.write(json.dumps({"Info": asdict(info),"Message": "Token valido!", "Error": "None"}).encode())
 
             # se o metodo foi mal especificado
             else:
@@ -101,12 +99,10 @@ class RestAPIHandlerSHA(BaseHTTPRequestHandler):
             print("Autenticação em execução...")
             body = self.rfile.read(int(self.headers["Content-Length"])).decode()
             
-            print("🔸 POST Path:", self.path)
-            print("🔸 Headers:\n", self.headers)
-            print("🔸 Body:", body)
-            
             params = parse_qs(body)
+            # nome do usuario
             name = params.get("name", [""])[0]
+            # senha do usuario
             password = params.get("password", [""])[0]
             print(f"Usuário {name} está tentando se autenticar...")
             
@@ -124,10 +120,7 @@ class RestAPIHandlerSHA(BaseHTTPRequestHandler):
                 }
                 
                 # gerando token JWT e assinando por SHA256
-                token = jwt.encode(payload, self.secret, algorithm="HS256")
-                
-                # gerando token JWT e assinando por RSA
-                # token = jwt.encode(payload, self.privateKey, algorithm="RS256")          
+                token = jwt.encode(payload, self.secret, algorithm="HS256")      
 
                 # enviando o token no cabecalho
                 self.send_response(200)

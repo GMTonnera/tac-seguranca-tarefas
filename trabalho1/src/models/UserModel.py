@@ -1,7 +1,7 @@
 import sqlite3
 import bcrypt
 
-from trabalho1.src.dataclasses.User import User
+from models.User import User
 
 class UserModel:
     def __init__(self):
@@ -46,7 +46,6 @@ class UserModel:
         with sqlite3.connect("trabalho1/src/database/trab1db.db") as conn:
             cursor = conn.execute("SELECT * FROM User WHERE name = ?", (name,))
             data = cursor.fetchone()
-            print(data)
             return User(data[0], data[1], data[2], data[3]) if data else None
     
     def createUser(self, user):
