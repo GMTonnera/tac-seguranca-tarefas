@@ -14,9 +14,9 @@ def main(algorithm):
     else:
         print("Algoritmo especificado não é uma opção válida!\nOpções: RSA ou SHA.")
     
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile='trabalho1/src/keys/cert.pem', keyfile='trabalho1/src/keys/key.pem')
-    httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
+    # context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    # context.load_cert_chain(certfile='trabalho1/src/keys/cert.pem', keyfile='trabalho1/src/keys/key.pem')
+    # httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
     
     
     print(f"Starting server at http://localhost:{8000}")

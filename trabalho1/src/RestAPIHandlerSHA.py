@@ -46,6 +46,7 @@ class RestAPIHandlerSHA(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps({"Message": "Erro de autenticação!", "Error": "Token expirado."}).encode())
+                return
             
             # token invalido
             except jwt.InvalidTokenError:
@@ -53,7 +54,8 @@ class RestAPIHandlerSHA(BaseHTTPRequestHandler):
                 self.send_response(401)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(json.dumps({"Message": "Erro de autenticação!", "Error": "Token inválido."}).encode())
+                self.wfile.write(json.dumps({"Message": "Erro de autenticacao!", "Error": "Token invalido."}).encode())
+                return
             
             
             # verificar o metodo relacionado com a contal cartao
@@ -63,7 +65,8 @@ class RestAPIHandlerSHA(BaseHTTPRequestHandler):
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.","Error": "ID mal informado!"}).encode())    
+                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.","Error": "ID mal informado!"}).encode())   
+                    return 
                 
                 # verificar se existe uma conta com o id especificado
                 info = self.accountModel.getInfo(int(account_id))
@@ -72,7 +75,8 @@ class RestAPIHandlerSHA(BaseHTTPRequestHandler):
                     self.send_response(404)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.", "Error": "Conta não encontrada!"}).encode())    
+                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.", "Error": "Conta não encontrada!"}).encode())
+                    return
                 
                 # se foi encontrado, enviar informacoes da conta
                 self.send_response(200)

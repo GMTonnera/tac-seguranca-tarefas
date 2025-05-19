@@ -10,22 +10,19 @@ from dataclasses import asdict
 from models.UserModel import UserModel
 from models.AccountModel import AccountModel
 from models.User import User
+from keys import initPrivateKey, initPublicKey
 
 class RestAPIHandlerRSA(BaseHTTPRequestHandler):
-    def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server)
-        # inicializando interfaces de comunicação com o banco de dados
-        self.userModel = UserModel()
-        self.accountModel = AccountModel()
-        
-        # tempo de expiracao do token
-        self.expTokenTime = 600
-        
-        # inicializacao das chaves
-        self.privateKey = None
-        self.publicKey = None    
-        self.initKeys()
+    # inicializando interfaces de comunicação com o banco de dados
+    userModel = UserModel()
+    accountModel = AccountModel()
     
+    # tempo de expiracao do token
+    expTokenTime = 600
+    
+    # inicializacao das chaves
+    privateKey = initPrivateKey()
+    publicKey = initPublicKey()    
     
     def do_GET(self):
         # aplicar regex na URL (/contacartao/{id da conta}/{metodo})
@@ -51,6 +48,7 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps({"Message": "Erro de autenticação!", "Error": "Token expirado."}).encode())
+                return
             
             # token invalido
             except jwt.InvalidTokenError:
@@ -58,7 +56,8 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                 self.send_response(401)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(json.dumps({"Message": "Erro de autenticação!", "Error": "Token inválido."}).encode())
+                self.wfile.write(json.dumps({"Message": "Erro de autenticacao!", "Error": "Token invalido."}).encode())
+                return
             
             # verificar o metodo relacionado com a contal cartao
             if method == 'info':
@@ -67,7 +66,8 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.","Error": "ID mal informado!"}).encode())    
+                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.","Error": "ID mal informado!"}).encode())
+                    return  
                 
                 # verificar se existe uma conta com o id especificado
                 info = self.accountModel.getInfo(int(account_id))
@@ -76,7 +76,8 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                     self.send_response(404)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.", "Error": "Conta não encontrada!"}).encode())    
+                    self.wfile.write(json.dumps({"Message": "Erro de parâmetro.", "Error": "Conta não encontrada!"}).encode())
+                    return 
                 
                 # se foi encontrado, enviar informacoes da conta
                 self.send_response(200)
@@ -89,7 +90,7 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
                 self.send_response(404)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-            self.wfile.write(json.dumps({"Message": "Erro na URL.", "Error": "Not found"}).encode())
+                self.wfile.write(json.dumps({"Message": "Erro na URL.", "Error": "Not found"}).encode())
         
         # se a url nao segue o padrao
         else:
@@ -163,12 +164,6 @@ class RestAPIHandlerRSA(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"Message": "Erro na URL.", "Error": "Not found"}).encode())
                 
-    def initKeys(self):
-        # carregar as chaves
-        with open("src/keys/private.pem", "rb") as f:
-            self.privateKey = f.read()
-
-        with open("src/keys/public.pem", "rb") as f:
-            self.public_key = f.read()
+    
 
             
