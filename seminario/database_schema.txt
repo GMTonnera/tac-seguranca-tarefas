@@ -1,0 +1,105 @@
+CREATE TABLE Users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('STUDENT', 'COACH', 'ADMIN') NOT NULL
+);
+
+CREATE TABLE Exercises (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255)
+);
+
+CREATE TABLE Workouts (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    weekDay VARCHAR(20) NOT NULL,
+    userId BIGINT NOT NULL,
+    coachId BIGINT,
+    FOREIGN KEY (userId) REFERENCES Users(id),
+    FOREIGN KEY (coachId) REFERENCES Users(id)
+);
+
+CREATE TABLE WorkoutExercises (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    workoutId BIGINT NOT NULL,
+    exerciseId BIGINT NOT NULL,
+    sets INT NOT NULL,
+    repetitions INT NOT NULL,
+    weight FLOAT,
+    FOREIGN KEY (workoutId) REFERENCES Workouts(id),
+    FOREIGN KEY (exerciseId) REFERENCES Exercises(id)
+);
+
+CREATE TABLE ExerciseProgresses (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    userId BIGINT NOT NULL,
+    exerciseId BIGINT NOT NULL,
+    date DATE NOT NULL,
+    weight FLOAT,
+    repetitions INT,
+    FOREIGN KEY (userId) REFERENCES Users(id),
+    FOREIGN KEY (exerciseId) REFERENCES Exercises(id)
+);
+
+CREATE TABLE CoachStudent (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    coachId BIGINT NOT NULL,
+    studentId BIGINT NOT NULL,
+    FOREIGN KEY (coachId) REFERENCES Users(id),
+    FOREIGN KEY (studentId) REFERENCES Users(id)
+);CREATE TABLE Users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('STUDENT', 'COACH', 'ADMIN') NOT NULL
+);
+
+CREATE TABLE Exercises (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255)
+);
+
+CREATE TABLE Workouts (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    weekDay VARCHAR(20) NOT NULL,
+    userId BIGINT NOT NULL,
+    coachId BIGINT,
+    FOREIGN KEY (userId) REFERENCES Users(id),
+    FOREIGN KEY (coachId) REFERENCES Users(id)
+);
+
+CREATE TABLE WorkoutExercises (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    workoutId BIGINT NOT NULL,
+    exerciseId BIGINT NOT NULL,
+    sets INT NOT NULL,
+    repetitions INT NOT NULL,
+    weight FLOAT,
+    FOREIGN KEY (workoutId) REFERENCES Workouts(id),
+    FOREIGN KEY (exerciseId) REFERENCES Exercises(id)
+);
+
+CREATE TABLE ExerciseProgresses (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    userId BIGINT NOT NULL,
+    exerciseId BIGINT NOT NULL,
+    date DATE NOT NULL,
+    weight FLOAT,
+    repetitions INT,
+    FOREIGN KEY (userId) REFERENCES Users(id),
+    FOREIGN KEY (exerciseId) REFERENCES Exercises(id)
+);
+
+CREATE TABLE CoachStudent (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    coachId BIGINT NOT NULL,
+    studentId BIGINT NOT NULL,
+    FOREIGN KEY (coachId) REFERENCES Users(id),
+    FOREIGN KEY (studentId) REFERENCES Users(id)
+);
